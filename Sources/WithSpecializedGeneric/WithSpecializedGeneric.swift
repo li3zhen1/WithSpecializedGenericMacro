@@ -1,16 +1,16 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
 
-/// A macro that produces both a value and a string containing the
-/// source code that generated the value. For example,
+/// A macro that put a specialized type alongside your generic defination
 ///
-///     #stringify(x + y)
+/// ```
+/// enum Scoped {
+///     @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
+///     struct Hello<T> {
+///         let a: T
+///     }
+/// }
+/// ```
 ///
-/// produces a tuple `(x + y, "x + y")`.
-@freestanding(expression)
-public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "WithSpecializedGenericMacros", type: "StringifyMacro")
-
-
+/// produces a new type:
 @attached(peer, names: arbitrary)
 public macro WithSpecializedGeneric<T>(
     namedAs specializedDeclName: String,
