@@ -8,6 +8,7 @@ import WithSpecializedGenericMacros
 
 let testMacros: [String: Macro.Type] = [
     "stringify": StringifyMacro.self,
+    "WithSpecializedGeneric": WithSpecializedGenericMacro.self,
 ]
 #endif
 
@@ -16,10 +17,23 @@ final class WithSpecializedGenericTests: XCTestCase {
         #if canImport(WithSpecializedGenericMacros)
         assertMacroExpansion(
             """
-            #stringify(a + b)
+            enum Scoped {
+                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
+                struct Hello<T> {
+                    let a: T
+                }
+            }
             """,
             expandedSource: """
-            (a + b, "a + b")
+            enum Scoped {
+                struct Hello<T> {
+                    let a: T
+                }
+                    struct Hola {
+                                let a: T
+                        public typealias T = Int
+                    }
+            }
             """,
             macros: testMacros
         )

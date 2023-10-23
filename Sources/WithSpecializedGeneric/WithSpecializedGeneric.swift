@@ -9,3 +9,11 @@
 /// produces a tuple `(x + y, "x + y")`.
 @freestanding(expression)
 public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "WithSpecializedGenericMacros", type: "StringifyMacro")
+
+
+@attached(peer, names: arbitrary)
+public macro WithSpecializedGeneric<T>(
+    namedAs specializedDeclName: String,
+    specializing templateTypeName: String,
+    to concreteTypeName: T.Type
+) = #externalMacro(module: "WithSpecializedGenericMacros", type: "WithSpecializedGenericMacro")
