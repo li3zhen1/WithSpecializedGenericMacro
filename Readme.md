@@ -1,5 +1,7 @@
 # WithSpecializedGenericMacro
 
+<img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow">
+
 An experimental peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
 
 This macro simply put a specialized type alongside your generic definition, by aliasing the generic type to a concrete type as a member of the struct/class.
