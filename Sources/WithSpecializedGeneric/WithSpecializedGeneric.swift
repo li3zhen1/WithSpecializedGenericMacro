@@ -1,5 +1,5 @@
 
-/// A macro that put a specialized type alongside your generic defination
+/// A macro that put a specialized type alongside your generic definition
 ///
 /// ```
 /// enum Scoped {
