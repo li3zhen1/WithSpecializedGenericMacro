@@ -247,7 +247,6 @@ public struct WithSpecializedGenericMacro: PeerMacro {
             return try expansion(of: args, providingPeersOf: structDecl, in: context)
         }
         else if let classDecl = declaration.as(ClassDeclSyntax.self) {
-            print(classDecl.name.text)
             return try expansion(of: args, providingPeersOf: classDecl, in: context)
         }
         else {
