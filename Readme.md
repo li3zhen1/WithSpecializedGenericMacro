@@ -1,6 +1,8 @@
 # WithSpecializedGenericMacro
 
-An experimental peer macro expanding generic struct or class to a specialized type, so as to avoid dynamic dispatch.
+An experimental peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
+
+This macro simply put a specialized type alongside your generic definition, by aliasing the generic type to a concrete type as a member of the struct/class.
 
 For generic functions try `@_specialize` attribute: https://forums.swift.org/t/specialize-attribute/1853
 
@@ -19,22 +21,22 @@ enum Namespace {
 
 will be expanded to
 
-```swift
+```diff
 enum Namespace {
   class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
     let id: T
     let a: S
   }
-  class Hola<S>: Identifiable where S: Identifiable {
-    let id: T
-    let a: S
-    public typealias T = Int
-  }
-  class Hej<S>: Identifiable where S: Identifiable {
-    let id: T
-    let a: S
-    public typealias T = String
-  }
++  class Hola<S>: Identifiable where S: Identifiable {
++    let id: T
++    let a: S
++    public typealias T = Int
++  }
++  class Hej<S>: Identifiable where S: Identifiable {
++    let id: T
++    let a: S
++    public typealias T = String
++  }
 }
 ```
 
