@@ -64,13 +64,16 @@ public struct WithSpecializedGenericMacro: PeerMacro {
     }
 
     
-    
-    private static func clearGenerics(inside decl: inout some ClassOrStructDeclSyntax, removing identifier: String) {
-        guard decl.genericParameterClause != nil else { return }
+    /// Returns true if has `identifier` in generic parameters
+    private static func clearGenerics(inside decl: inout some ClassOrStructDeclSyntax, removing identifier: String) -> Bool {
+        guard decl.genericParameterClause != nil else { return false}
 
-        decl.genericParameterClause!.parameters.removeFirst { p in
+        let removed = decl.genericParameterClause!.parameters.removeFirst { p in
             p.name.text == identifier
-        }
+        } 
+        
+        guard removed != nil else { return false }
+        
         if decl.genericWhereClause != nil {
             decl.genericWhereClause!.requirements = decl.genericWhereClause!.requirements.filter { requirement in
                 switch requirement.requirement {
@@ -91,7 +94,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         if (decl.genericParameterClause!.parameters.isEmpty) {
             decl.genericParameterClause = nil
         }
-        return
+        return true
     }
     
     
@@ -120,9 +123,19 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         in context: some SwiftSyntaxMacros.MacroExpansionContext
     ) throws -> [SwiftSyntax.DeclSyntax] {
         var structDecl = structOrClassDecl
+        
+        /// Remove attribute
+        clearAttributes(inside: &structDecl, removing: arguments)
+        
         let templateTypeName = arguments.templateTypeName
         let concreteTypeDeclRefExpr = arguments.concreteTypeDeclRefExpr
         let specializedDeclName = arguments.specializedDeclName
+        
+        /// Remove generics
+        if !clearGenerics(inside: &structDecl, removing: templateTypeName) {
+            /// Multiple expansion
+            return []
+        }
         
         guard let typealiasDecl = try? TypeAliasDeclSyntax("public typealias \(raw: templateTypeName) = \(raw: concreteTypeDeclRefExpr.baseName)") else {
             return []
@@ -135,11 +148,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         /// Rename struct
         structDecl.name = TokenSyntax(stringLiteral: specializedDeclName)
         
-        /// Remove generics
-        clearGenerics(inside: &structDecl, removing: templateTypeName)
         
-        /// Remove attribute
-        clearAttributes(inside: &structDecl, removing: arguments)
         
         
         
@@ -191,6 +200,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
     
     public static func expansion(of node: SwiftSyntax.AttributeSyntax, providingPeersOf declaration: some SwiftSyntax.DeclSyntaxProtocol, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
         
+        
         guard let labeledExprList = node.arguments?.as(LabeledExprListSyntax.self) else {
             context.diagnose(.init(node: node, message: _DiagnosticMessage.requireLabeledArguments))
             return []
@@ -237,6 +247,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
             return try expansion(of: args, providingPeersOf: structDecl, in: context)
         }
         else if let classDecl = declaration.as(ClassDeclSyntax.self) {
+            print(classDecl.name.text)
             return try expansion(of: args, providingPeersOf: classDecl, in: context)
         }
         else {

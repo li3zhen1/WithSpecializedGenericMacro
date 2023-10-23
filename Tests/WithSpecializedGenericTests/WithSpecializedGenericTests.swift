@@ -143,5 +143,44 @@ final class WithSpecializedGenericTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
+    
+    
+    func testMultipleComplexGenericClass() throws {
+        #if canImport(WithSpecializedGenericMacros)
+        assertMacroExpansion(
+            """
+            enum Scoped {
+                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
+                @WithSpecializedGeneric(namedAs: "Hej", specializing: "T", to: String)
+                class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                    let id: T
+                    let a: S
+                }
+            }
+            """,
+            expandedSource: """
+            enum Scoped {
+                class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                    let id: T
+                    let a: S
+                }
+                    class Hola<S>: Identifiable where S: Identifiable {
+                                let id: T
+                                let a: S
+                        public typealias T = Int
+                    }
+                    class Hej<S>: Identifiable where S: Identifiable {
+                                let id: T
+                                let a: S
+                        public typealias T = String
+                    }
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
 
 }
