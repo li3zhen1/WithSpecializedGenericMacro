@@ -10,7 +10,7 @@
 /// }
 /// ```
 ///
-/// produces a new type:
+/// produces a new type "Hola", with generic parameters <T> becoming a typealias `T=Int`
 @attached(peer, names: arbitrary)
 public macro WithSpecializedGeneric<T>(
     namedAs specializedDeclName: String,
