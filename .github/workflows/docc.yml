@@ -35,7 +35,7 @@ jobs:
           generate-documentation --target WithSpecializedGeneric \
           --disable-indexing \
           --transform-for-static-hosting \
-          --hosting-base-path SpecializedGenericMacros \
+          --hosting-base-path WithSpecializedGeneric \
           --output-path docs && swift ./DocPostprocess.swift
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
