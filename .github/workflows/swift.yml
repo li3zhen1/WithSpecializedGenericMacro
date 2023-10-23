@@ -13,13 +13,12 @@ jobs:
   build:
     name: Swift build and test
     runs-on: macos-latest
-    strategy:
-      matrix:
-        os: [macos-latest]
-        swift: ["5.9"]
 
     steps:
     - uses: actions/checkout@v3
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v1.25.0
+            
     - name: Build
       run: swift build -v
     - name: Run tests
