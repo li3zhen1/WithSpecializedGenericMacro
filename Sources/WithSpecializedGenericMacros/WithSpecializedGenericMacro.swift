@@ -26,6 +26,16 @@ public struct StringifyMacro: ExpressionMacro {
 }
 
 
+extension SyntaxCollection {
+    mutating func removeFirst(predicate: (Element) -> Bool) -> Element? {
+        if let firstIndex = firstIndex(where: predicate) {
+            return remove(at: firstIndex)
+        }
+        else { return nil }
+    }
+}
+
+
 public struct WithSpecializedGenericMacro: PeerMacro {
     public static func expansion(of node: SwiftSyntax.AttributeSyntax, providingPeersOf declaration: some SwiftSyntax.DeclSyntaxProtocol, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
         
@@ -88,13 +98,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
                     
                 structDecl.memberBlock.members.append(memberBlockItemOfTypealias)
                 
-                
-                
-//                let uniqueName = context.makeUniqueName(specializedDeclName)
-                
                 structDecl.name = TokenSyntax(stringLiteral: specializedDeclName)
-                
-                guard let result = structDecl.as(DeclSyntax.self) else { return [] }
                 
                 if let thisMacroIndex = structDecl.attributes.firstIndex(where: { it in
                     switch it {
@@ -110,9 +114,9 @@ public struct WithSpecializedGenericMacro: PeerMacro {
                 }) {
                     structDecl.attributes.remove(at: thisMacroIndex)
                 }
+                structDecl.attributes = []
                 
-                
-                return [result]
+                return [structDecl.as(DeclSyntax.self)!]
                 
             }
             
@@ -121,7 +125,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         return []
     }
     
-    static let macroName = "WithSpecilizedGeneric"
+    static let macroName = "WithSpecializedGeneric"
 }
 
 

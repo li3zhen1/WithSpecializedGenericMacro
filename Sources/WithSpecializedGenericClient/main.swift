@@ -14,3 +14,6 @@ enum Scoped {
     }
 }
 
+
+let c = Scoped.Hola(a:1)
+
