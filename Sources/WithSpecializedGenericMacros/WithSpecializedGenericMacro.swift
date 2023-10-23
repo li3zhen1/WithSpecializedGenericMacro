@@ -26,6 +26,20 @@ extension TypeSyntax {
         }
         return false
     }
+    
+    func modifyReference(from identifier: String, to: String) -> TypeSyntax {
+        if var self = self.as(IdentifierTypeSyntax.self) {
+            if self.name.text == identifier {
+                self.name = TokenSyntax(stringLiteral: to)
+            }
+            return self.as(TypeSyntax.self)!
+        }
+        else if var self = self.as(MemberTypeSyntax.self) {
+            self.baseType = self.baseType.modifyReference(from: identifier, to: to)
+            return self.as(TypeSyntax.self)!
+        }
+        return self
+    }
 }
 
 protocol ClassOrStructDeclSyntax: DeclSyntaxProtocol {
@@ -65,35 +79,35 @@ public struct WithSpecializedGenericMacro: PeerMacro {
 
     
     /// Returns true if has `identifier` in generic parameters
-    private static func clearGenerics(inside decl: inout some ClassOrStructDeclSyntax, removing identifier: String) -> Bool {
+    private static func hasGenericParameterToRemove(inside decl: some ClassOrStructDeclSyntax, removing identifier: String) -> Bool {
         guard decl.genericParameterClause != nil else { return false}
 
-        let removed = decl.genericParameterClause!.parameters.removeFirst { p in
+        let index = decl.genericParameterClause!.parameters.first { p in
             p.name.text == identifier
         } 
         
-        guard removed != nil else { return false }
-        
-        if decl.genericWhereClause != nil {
-            decl.genericWhereClause!.requirements = decl.genericWhereClause!.requirements.filter { requirement in
-                switch requirement.requirement {
-                case .conformanceRequirement(let conformanceRequirement):
-                    return !conformanceRequirement.leftType.isReferencing(identifier: identifier) && !conformanceRequirement.rightType.isReferencing(identifier: identifier)
-                case .sameTypeRequirement(let sameTypeRequirement):
-                    return !sameTypeRequirement.leftType.isReferencing(identifier: identifier) && !sameTypeRequirement.rightType.isReferencing(identifier: identifier)
-                case .layoutRequirement(_):
-                    return true
-                }
-            }
-            
-            
-            if (decl.genericWhereClause!.requirements.isEmpty) {
-                decl.genericWhereClause = nil
-            }
-        }
-        if (decl.genericParameterClause!.parameters.isEmpty) {
-            decl.genericParameterClause = nil
-        }
+        guard index != nil else { return false }
+//
+//        if decl.genericWhereClause != nil {
+//            decl.genericWhereClause!.requirements = decl.genericWhereClause!.requirements.filter { requirement in
+//                switch requirement.requirement {
+//                case .conformanceRequirement(let conformanceRequirement):
+//                    return !conformanceRequirement.leftType.isReferencing(identifier: identifier) && !conformanceRequirement.rightType.isReferencing(identifier: identifier)
+//                case .sameTypeRequirement(let sameTypeRequirement):
+//                    return !sameTypeRequirement.leftType.isReferencing(identifier: identifier) && !sameTypeRequirement.rightType.isReferencing(identifier: identifier)
+//                case .layoutRequirement(_):
+//                    return true
+//                }
+//            }
+//            
+//            
+//            if (decl.genericWhereClause!.requirements.isEmpty) {
+//                decl.genericWhereClause = nil
+//            }
+//        }
+//        if (decl.genericParameterClause!.parameters.isEmpty) {
+//            decl.genericParameterClause = nil
+//        }
         return true
     }
     
@@ -116,6 +130,47 @@ public struct WithSpecializedGenericMacro: PeerMacro {
     }
     
     
+    private static func transformMembers(
+        providingPeersOf structOrClassDecl: inout some ClassOrStructDeclSyntax
+    ) {
+        for member in structOrClassDecl.memberBlock.members {
+            switch member.decl.kind {
+            case .classDecl:
+                guard let classDecl = member.as(ClassDeclSyntax.self) else {continue}
+                
+                
+                
+            case .structDecl:
+                guard let structDecl = member.as(StructDeclSyntax.self) else {continue}
+                
+            case .variableDecl:
+                guard let variableDecl = member.as(VariableDeclSyntax.self) else {continue}
+                for binding in variableDecl.bindings {
+                    
+                    if binding.typeAnnotation != nil {
+                        if let tyIdentifier = binding.typeAnnotation!.type.as(IdentifierTypeSyntax.self) {
+                            
+                        }
+                    }
+                    
+                    if binding.initializer != nil {
+                        if let initializer = binding.initializer!.value.as(FunctionCallExprSyntax.self) {
+                            
+                        }
+                    }
+                    
+                }
+                
+                
+            case .functionDecl:
+                guard let functionDecl = member.as(FunctionDeclSyntax.self) else {continue}
+            // TODO:
+            default:
+                continue
+            }
+        }
+    }
+    
     
     private static func expansion(
         of arguments: Arguments,
@@ -132,10 +187,21 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         let specializedDeclName = arguments.specializedDeclName
         
         /// Remove generics
-        if !clearGenerics(inside: &structDecl, removing: templateTypeName) {
+        if !hasGenericParameterToRemove(inside: structDecl, removing: templateTypeName) {
             /// Multiple expansion
             return []
         }
+        
+        let rewiter = SpecializeGenericRewriter(
+            parameter: .init(
+                oldName: structDecl.name.text,
+                oldGenericParameterList: structDecl.genericParameterClause!.parameters,
+                newName: specializedDeclName,
+                from: templateTypeName,
+                to: concreteTypeDeclRefExpr
+            )
+        )
+        
         
         guard let typealiasDecl = try? TypeAliasDeclSyntax("public typealias \(raw: templateTypeName) = \(raw: concreteTypeDeclRefExpr.baseName)") else {
             return []
@@ -150,47 +216,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         
         
         
-        
-        
-        
-//        if structDecl.genericParameterClause != nil {
-//            if let templateNameToSpecialize = structDecl.genericParameterClause!.parameters.firstIndex(where: { genericParamterSyntax in
-//                genericParamterSyntax.name.text == templateTypeName
-//            }) {
-//                
-//                
-//
-//                structDecl.genericParameterClause!.parameters.remove(at: templateNameToSpecialize)
-//                
-//                                if (structDecl.genericParameterClause!.parameters.isEmpty) {
-//                                    structDecl.genericParameterClause = nil
-//                                }
-//                
-//                
-//
-//                
-//                if let thisMacroIndex = structDecl.attributes.firstIndex(where: { it in
-//                    switch it {
-//                    case .attribute(let attr):
-//                        if let identifierTypeSyntax = attr.as(IdentifierTypeSyntax.self) {
-//                            
-//                            return identifierTypeSyntax.name.text == Self.macroName
-//                        }
-//                        return false
-//                    case .ifConfigDecl(_):
-//                        return false
-//                    }
-//                }) {
-//                    structDecl.attributes.remove(at: thisMacroIndex)
-//                }
-//                structDecl.attributes = []
-//                
-//                return [structDecl.as(DeclSyntax.self)!]
-//                
-//            }
-//            
-//        }
-        if let result = structDecl.as(DeclSyntax.self) {
+        if let result = rewiter.rewrite(structDecl).as(DeclSyntax.self) {
             return [result]
         }
         

@@ -31,8 +31,8 @@ final class WithSpecializedGenericTests: XCTestCase {
                 struct Hello<T> {
                     let a: T
                 }
-            
-                struct Hola {
+
+                struct Hola   {
                                 let a: T
                         public typealias T = Int
                     }
@@ -63,8 +63,8 @@ final class WithSpecializedGenericTests: XCTestCase {
                 struct Hello<T> where T == Int {
                     let a: T
                 }
-            
-                struct Hola {
+
+                struct Hola    {
                                 let a: T
                         public typealias T = Int
                     }
@@ -94,8 +94,8 @@ final class WithSpecializedGenericTests: XCTestCase {
                 struct Hello<T> where T: Hashable {
                     let a: T
                 }
-            
-                struct Hola {
+
+                struct Hola    {
                                 let a: T
                         public typealias T = Int
                     }
@@ -130,7 +130,7 @@ final class WithSpecializedGenericTests: XCTestCase {
                     let a: S
                 }
             
-                class Hola<S>: Identifiable where S: Identifiable {
+                class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
                                 let id: T
                                 let a: S
                         public typealias T = Int
@@ -164,15 +164,108 @@ final class WithSpecializedGenericTests: XCTestCase {
                     let id: T
                     let a: S
                 }
-                    class Hola<S>: Identifiable where S: Identifiable {
+                    class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
                                 let id: T
                                 let a: S
                         public typealias T = Int
                     }
-                    class Hej<S>: Identifiable where S: Identifiable {
+                    class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
                                 let id: T
                                 let a: S
                         public typealias T = String
+                    }
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    
+    
+    func testMultipleComplexGenericClassWithFunctionInitializer() throws {
+        #if canImport(WithSpecializedGenericMacros)
+        assertMacroExpansion(
+            """
+            enum Scoped {
+                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
+                @WithSpecializedGeneric(namedAs: "Hej", specializing: "T", to: String)
+                class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                    let id: T
+                    let childre: Hello<T, S>
+            
+                    func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+                        let b: Hello<T, S> = Hello()
+                        return b
+                    }
+                }
+            }
+            """,
+            expandedSource: """
+            enum Scoped {
+                class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                    let id: T
+                    let childre: Hello<T, S>
+
+                    func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+                        let b: Hello<T, S> = Hello()
+                        return b
+                    }
+                }
+                    class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+                                let id: T
+                                let childre: Hola<S>
+
+                                func greeting(with word: Hola<S>) -> Hola<S> {
+                                        let b: Hola<S> = Hola()
+                                        return b
+                                }
+                        public typealias T = Int
+                    }
+                    class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
+                                let id: T
+                                let childre: Hej<S>
+
+                                func greeting(with word: Hej<S>) -> Hej<S> {
+                                        let b: Hej<S> = Hej()
+                                        return b
+                                }
+                        public typealias T = String
+                    }
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    
+    
+    
+    func testNestedClass() throws {
+        #if canImport(WithSpecializedGenericMacros)
+        assertMacroExpansion(
+            """
+            enum Scoped {
+                @WithSpecializedGeneric(namedAs: "IntNode", specializing: "T", to: Int)
+                struct Node<T> where T: Hashable {
+                    let children: [Node<T>]
+                }
+            }
+            """,
+            expandedSource: """
+            enum Scoped {
+                struct Node<T> where T: Hashable {
+                    let children: [Node<T>]
+                }
+
+                struct IntNode    {
+                                let children: [IntNode  ]
+                        public typealias T = Int
                     }
             }
             """,
