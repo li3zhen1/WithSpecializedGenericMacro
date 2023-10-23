@@ -101,7 +101,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
                     case .attribute(let attr):
                         if let identifierTypeSyntax = attr.as(IdentifierTypeSyntax.self) {
                             
-                            return identifierTypeSyntax.name.text == "InlinedGenerics"
+                            return identifierTypeSyntax.name.text == Self.macroName
                         }
                         return false
                     case .ifConfigDecl(_):
@@ -120,6 +120,8 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         
         return []
     }
+    
+    static let macroName = "WithSpecilizedGeneric"
 }
 
 
