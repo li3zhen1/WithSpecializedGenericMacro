@@ -19,17 +19,18 @@ final class WithSpecializedGenericTests: XCTestCase {
             """
             enum Scoped {
                 @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
-                struct Hello<T> {
+                struct Hello<T> where T: Hashable {
                     let a: T
                 }
             }
             """,
             expandedSource: """
             enum Scoped {
-                struct Hello<T> {
+                struct Hello<T> where T: Hashable {
                     let a: T
                 }
-                    struct Hola {
+            
+                struct Hola {
                                 let a: T
                         public typealias T = Int
                     }
@@ -45,12 +46,26 @@ final class WithSpecializedGenericTests: XCTestCase {
     func testMacroWithStringLiteral() throws {
         #if canImport(WithSpecializedGenericMacros)
         assertMacroExpansion(
-            #"""
-            #stringify("Hello, \(name)")
-            """#,
-            expandedSource: #"""
-            ("Hello, \(name)", #""Hello, \(name)""#)
-            """#,
+            """
+            enum Scoped {
+                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
+                struct Hello<T> {
+                    let a: T
+                }
+            }
+            """,
+            expandedSource: """
+            enum Scoped {
+                struct Hello<T> {
+                    let a: T
+                }
+            
+                struct Hola {
+                                let a: T
+                        public typealias T = Int
+                    }
+            }
+            """,
             macros: testMacros
         )
         #else

@@ -15,5 +15,5 @@ enum Scoped {
 }
 
 
-let c = Scoped.Hola(a:1)
+//let c = Scoped.Hola(a:1)
 
