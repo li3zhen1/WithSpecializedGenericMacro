@@ -156,12 +156,13 @@ class SpecializeGenericRewriter: SyntaxRewriter {
     
     
     override func visit(_ node: GenericSpecializationExprSyntax) -> ExprSyntax {
-        guard let declRef = node.expression.as(DeclReferenceExprSyntax.self),
+        guard var declRef = node.expression.as(DeclReferenceExprSyntax.self),
               declRef.baseName.text == parameter.oldName else { return node.as(ExprSyntax.self)! }
         
         var node = node
         transformGenericArgumentClause(clause: &node.genericArgumentClause)
-        node.expression = ExprSyntax(literal: parameter.newName)
+        declRef.baseName = TokenSyntax(stringLiteral: parameter.newName)
+        node.expression = declRef.as(ExprSyntax.self)!
         
         return node.as(ExprSyntax.self)!
     }

@@ -209,6 +209,9 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         
         /// Add typealias
         let memberBlockItemOfTypealias = MemberBlockItemSyntax(decl: typealiasDecl)
+//        for i in structDecl.memberBlock.members.indices {
+//            structDecl.memberBlock.members[i] = structDecl.memberBlock.members[i].trimmed
+//        }
         structDecl.memberBlock.members.append(memberBlockItemOfTypealias)
         
         /// Rename struct
@@ -217,6 +220,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         
         
         if let result = rewiter.rewrite(structDecl).as(DeclSyntax.self) {
+            
             return [result]
         }
         

@@ -198,7 +198,7 @@ final class WithSpecializedGenericTests: XCTestCase {
             
                     func greeting(with word: Hello<T, S>) -> Hello<T, S> {
                         let b: Hello<T, S> = Hello()
-                        return b
+                        return Hello<T, S>()
                     }
                 }
             }
@@ -211,7 +211,7 @@ final class WithSpecializedGenericTests: XCTestCase {
 
                     func greeting(with word: Hello<T, S>) -> Hello<T, S> {
                         let b: Hello<T, S> = Hello()
-                        return b
+                        return Hello<T, S>()
                     }
                 }
                     class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
@@ -220,7 +220,7 @@ final class WithSpecializedGenericTests: XCTestCase {
 
                                 func greeting(with word: Hola<S>) -> Hola<S> {
                                         let b: Hola<S> = Hola()
-                                        return b
+                                        return Hola<S>()
                                 }
                         public typealias T = Int
                     }
@@ -230,7 +230,7 @@ final class WithSpecializedGenericTests: XCTestCase {
 
                                 func greeting(with word: Hej<S>) -> Hej<S> {
                                         let b: Hej<S> = Hej()
-                                        return b
+                                        return Hej<S>()
                                 }
                         public typealias T = String
                     }
