@@ -42,18 +42,24 @@ extension TypeSyntax {
     }
 }
 
-protocol ClassOrStructDeclSyntax: DeclSyntaxProtocol {
-    var genericParameterClause: GenericParameterClauseSyntax? { get set }
+
+protocol ClassStructOrExtensionSyntax: DeclSyntaxProtocol {
     var genericWhereClause: GenericWhereClauseSyntax? {get set }
     var memberBlock: MemberBlockSyntax {get set}
-    var name: TokenSyntax {get set}
     var attributes: AttributeListSyntax {get set}
-    
-    func `as`<S: DeclSyntaxProtocol>(_ syntaxType: S.Type) -> S?
+}
+
+
+protocol ClassOrStructDeclSyntax: ClassStructOrExtensionSyntax {
+    var genericParameterClause: GenericParameterClauseSyntax? { get set }
+    var name: TokenSyntax {get set}
 }
 
 extension ClassDeclSyntax: ClassOrStructDeclSyntax { }
 extension StructDeclSyntax: ClassOrStructDeclSyntax { }
+extension ExtensionDeclSyntax: ClassStructOrExtensionSyntax { }
+
+
 
 
 public struct WithSpecializedGenericMacro: PeerMacro {
@@ -112,7 +118,7 @@ public struct WithSpecializedGenericMacro: PeerMacro {
     }
     
     
-    private static func clearAttributes(inside decl: inout some ClassOrStructDeclSyntax, removing arguments: Arguments) {
+    private static func clearAttributes(inside decl: inout some ClassStructOrExtensionSyntax, removing arguments: Arguments) {
 //        var toRemove: [AttributeListSyntax.Index] = []
         for i in decl.attributes.indices {
             switch (decl.attributes[i]) {
@@ -129,47 +135,37 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         
     }
     
-    
-    private static func transformMembers(
-        providingPeersOf structOrClassDecl: inout some ClassOrStructDeclSyntax
-    ) {
-        for member in structOrClassDecl.memberBlock.members {
-            switch member.decl.kind {
-            case .classDecl:
-                guard let classDecl = member.as(ClassDeclSyntax.self) else {continue}
-                
-                
-                
-            case .structDecl:
-                guard let structDecl = member.as(StructDeclSyntax.self) else {continue}
-                
-            case .variableDecl:
-                guard let variableDecl = member.as(VariableDeclSyntax.self) else {continue}
-                for binding in variableDecl.bindings {
-                    
-                    if binding.typeAnnotation != nil {
-                        if let tyIdentifier = binding.typeAnnotation!.type.as(IdentifierTypeSyntax.self) {
-                            
-                        }
-                    }
-                    
-                    if binding.initializer != nil {
-                        if let initializer = binding.initializer!.value.as(FunctionCallExprSyntax.self) {
-                            
-                        }
-                    }
-                    
-                }
-                
-                
-            case .functionDecl:
-                guard let functionDecl = member.as(FunctionDeclSyntax.self) else {continue}
-            // TODO:
-            default:
-                continue
-            }
-        }
-    }
+//    private static func expansion(
+//        of arguments: Arguments,
+//        providingPeersOf extensionDecl: ExtensionDeclSyntax,
+//        in context: some SwiftSyntaxMacros.MacroExpansionContext
+//    ) throws -> [SwiftSyntax.DeclSyntax] {
+//        var extensionDecl = extensionDecl
+//        clearAttributes(inside: &extensionDecl, removing: arguments)
+//        let templateTypeName = arguments.templateTypeName
+//        let concreteTypeDeclRefExpr = arguments.concreteTypeDeclRefExpr
+//        let specializedDeclName = arguments.specializedDeclName
+//        
+//        guard let decoratedName = extensionDecl.extendedType.as(MemberTypeSyntax.self)?.name ?? extensionDecl.extendedType.as(IdentifierTypeSyntax.self)?.name else { return [] }
+//        
+//        /// TODO: If extension has where clause
+//        let rewiter = SpecializeGenericRewriter(
+//            parameter: .init(
+//                oldName: decoratedName.text,
+//                oldGenericParameterList: extensionDecl.genericParameterClause!.parameters,
+//                newName: specializedDeclName,
+//                from: templateTypeName,
+//                to: concreteTypeDeclRefExpr
+//            )
+//        )
+//        
+//        if let result = rewiter.rewrite(extensionDecl).as(DeclSyntax.self) {
+//            
+//            return [result]
+//        }
+//        
+//        return []
+//    }
     
     
     private static func expansion(
@@ -279,11 +275,16 @@ public struct WithSpecializedGenericMacro: PeerMacro {
         else if let classDecl = declaration.as(ClassDeclSyntax.self) {
             return try expansion(of: args, providingPeersOf: classDecl, in: context)
         }
+//        else if let extensionDecl = declaration.as(ExtensionDeclSyntax.self) {
+//            return try expansion(of: args, providingPeersOf: extensionDecl, in: context)
+//        }
         else {
             return []
         }
     }
 }
+
+
 
 
 
@@ -309,10 +310,6 @@ extension WithSpecializedGenericMacro._DiagnosticMessage: DiagnosticMessage {
     
     public var severity: SwiftDiagnostics.DiagnosticSeverity {
         return .error
-//        switch(self) {
-//        case .requireLabeledArguments:
-//            return .error
-//        }
     }
     
     
