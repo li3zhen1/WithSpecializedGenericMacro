@@ -9,6 +9,7 @@ import WithSpecializedGenericMacros
 let testMacros: [String: Macro.Type] = [
 //    "stringify": StringifyMacro.self,
     "WithSpecializedGeneric": WithSpecializedGenericMacro.self,
+    "WithSpecializedGenerics": WithSpecializedGenericsMacro.self,
 ]
 #endif
 
@@ -275,5 +276,49 @@ final class WithSpecializedGenericTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
+
+    
+    func testDSLResolve() throws {
+        
+
+        
+#if canImport(WithSpecializedGenericMacros)
+assertMacroExpansion(
+    """
+    enum Scoped {
+        @WithSpecializedGenerics(\"""
+        Nihao {
+            T = Int
+        }
+        Hej {
+            V = String
+            T = Double
+        }
+        \""")
+        struct Node<T> where T: Hashable {
+            let children: [Node<T>]
+        }
+    }
+    """,
+    expandedSource: """
+    enum Scoped {
+        struct Node<T> where T: Hashable {
+            let children: [Node<T>]
+        }
+
+        struct IntNode    {
+                        let children: [IntNode  ]
+                public typealias T = Int
+            }
+    }
+    """,
+    macros: testMacros
+)
+#else
+throw XCTSkip("macros are only supported when running tests for the host platform")
+#endif
+        
+    }
+    
 
 }

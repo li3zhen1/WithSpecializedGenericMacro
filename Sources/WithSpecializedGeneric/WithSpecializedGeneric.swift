@@ -17,3 +17,18 @@ public macro WithSpecializedGeneric<T>(
     specializing templateTypeName: String,
     to concreteTypeName: T.Type
 ) = #externalMacro(module: "WithSpecializedGenericMacros", type: "WithSpecializedGenericMacro")
+
+
+//public struct SpecializedGenericArguments {
+//    let namedAs: String
+//    let specializing: [String: Any.Type]
+//}
+//
+//let t = SpecializedGenericArguments(namedAs: "hello", specializing: ["T":Int.self])
+
+
+
+@attached(peer, names: arbitrary)
+public macro WithSpecializedGenerics(
+    _ mapping: String
+) = #externalMacro(module: "WithSpecializedGenericMacros", type: "WithSpecializedGenericsMacro")

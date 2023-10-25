@@ -143,6 +143,23 @@ class SpecializeGenericRewriter: SyntaxRewriter {
         self.parameter = parameter
     }
     
+    override func visit(_ node: CodeBlockItemSyntax) -> CodeBlockItemSyntax {
+        return super.visit(node).trimmed
+    }
+    
+    
+    override func visit(_ node: CodeBlockItemListSyntax) -> CodeBlockItemListSyntax {
+        return super.visit(node).trimmed
+    }
+    
+    /// Visit a ``CodeBlockSyntax``.
+    ///   - Parameter node: the node that is being visited
+    ///   - Returns: the rewritten node
+    override func visit(_ node: CodeBlockSyntax) -> CodeBlockSyntax {
+        return super.visit(node).trimmed
+    }
+    
+    
     
     override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
         guard node.name.text == parameter.oldName else { return node.as(TypeSyntax.self)! }
@@ -151,7 +168,7 @@ class SpecializeGenericRewriter: SyntaxRewriter {
             transformGenericArgumentClause(clause: &node.genericArgumentClause!)
         }
         node.name = TokenSyntax(stringLiteral: parameter.newName)
-        return node.as(TypeSyntax.self)!
+        return node.as(TypeSyntax.self)!.trimmed
     }
     
     
@@ -164,7 +181,7 @@ class SpecializeGenericRewriter: SyntaxRewriter {
         declRef.baseName = TokenSyntax(stringLiteral: parameter.newName)
         node.expression = declRef.as(ExprSyntax.self)!
         
-        return node.as(ExprSyntax.self)!
+        return node.as(ExprSyntax.self)!.trimmed
     }
     
     override func visit(_ node: DeclReferenceExprSyntax) -> ExprSyntax {
@@ -177,19 +194,27 @@ class SpecializeGenericRewriter: SyntaxRewriter {
             node.baseName = TokenSyntax(stringLiteral: parameter.newName)
         }
         
-        return node.as(ExprSyntax.self)!
+        return node.as(ExprSyntax.self)!.trimmed
     }
     
     
     override func visit(_ node: GenericParameterClauseSyntax) -> GenericParameterClauseSyntax {
         var node = node
         transformGenericParameterClause(clause: &node)
-        return node
+        return node.trimmed
     }
     
     override func visit(_ node: GenericWhereClauseSyntax) -> GenericWhereClauseSyntax {
         var node = node
         transformGenericWhereClause(clause: &node)
-        return node
+        return node.trimmed
+    }
+    
+    override func visit(_ node: MemberBlockItemSyntax) -> MemberBlockItemSyntax {
+        return super.visit(node).trimmed
+    }
+    
+    override func visit(_ token: TokenSyntax) -> TokenSyntax {
+        return token.trimmed
     }
 }

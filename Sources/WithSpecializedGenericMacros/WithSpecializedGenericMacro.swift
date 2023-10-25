@@ -317,10 +317,32 @@ extension WithSpecializedGenericMacro._DiagnosticMessage: DiagnosticMessage {
 
 
 
+
+public struct WithSpecializedGenericsMacro: PeerMacro {
+    public static func expansion(of node: SwiftSyntax.AttributeSyntax, providingPeersOf declaration: some SwiftSyntax.DeclSyntaxProtocol, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
+        guard let labeledExprList = node.arguments?.as(LabeledExprListSyntax.self) else {
+            return []
+        }
+        
+        guard let mappingStringLiteral = labeledExprList.first?.expression.as(StringLiteralExprSyntax.self)?.representedLiteralValue else {
+            return []
+        }
+        
+        let mapping = try MappingEntry.parse(mappingStringLiteral)
+        
+        
+        return []
+    }
+    
+}
+
+
+
 @main
 struct WithSpecializedGenericPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        
-        WithSpecializedGenericMacro.self
+        WithSpecializedGenericMacro.self,
+        WithSpecializedGenericsMacro.self
     ]
 }
+
