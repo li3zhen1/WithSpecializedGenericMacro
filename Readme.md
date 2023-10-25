@@ -49,7 +49,7 @@ enum Namespace {
 +        let child: Hola<S>
 +        ...
 +        func spawn() -> Hola<S> {
-+            let test: [Hola<S>] = [Hola()]
++            let test: Hola<S> = Hola()
 +            return Hola<S>()
 +        }
 +        public typealias T = Int
