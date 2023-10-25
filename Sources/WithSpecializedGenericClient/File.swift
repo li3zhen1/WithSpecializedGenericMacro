@@ -5,12 +5,12 @@
 //  Created by li3zhen1 on 10/25/23.
 //
 
-import Foundation
+// import Foundation
 
 
 
-extension Scoped.Hello {
-    func test() {
-        
-    }
-}
+// extension Scoped.Hello {
+//    func test() {
+       
+//    }
+// }

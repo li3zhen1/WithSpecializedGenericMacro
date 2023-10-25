@@ -28,7 +28,7 @@ public macro WithSpecializedGeneric<T>(
 
 
 
-@attached(peer, names: arbitrary)
-public macro WithSpecializedGenerics(
-    _ mapping: String
-) = #externalMacro(module: "WithSpecializedGenericMacros", type: "WithSpecializedGenericsMacro")
+//@attached(peer, names: arbitrary)
+//public macro WithSpecializedGenerics(
+//    _ mapping: String
+//) = #externalMacro(module: "WithSpecializedGenericMacros", type: "WithSpecializedGenericsMacro")

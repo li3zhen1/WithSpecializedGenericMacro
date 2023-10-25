@@ -34,9 +34,9 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 struct Hola   {
-                                let a: T
-                        public typealias T = Int
-                    }
+                    let a: T
+                    public typealias T = Int
+                }
             }
             """,
             macros: testMacros
@@ -66,9 +66,9 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 struct Hola    {
-                                let a: T
-                        public typealias T = Int
-                    }
+                    let a: T
+                    public typealias T = Int
+                }
             }
             """,
             macros: testMacros
@@ -97,9 +97,9 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 struct Hola    {
-                                let a: T
-                        public typealias T = Int
-                    }
+                    let a: T
+                    public typealias T = Int
+                }
             }
             """,
             macros: testMacros
@@ -130,12 +130,12 @@ final class WithSpecializedGenericTests: XCTestCase {
                     let id: T
                     let a: S
                 }
-            
+
                 class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                                let id: T
-                                let a: S
-                        public typealias T = Int
-                    }
+                    let id: T
+                    let a: S
+                    public typealias T = Int
+                }
             }
             """,
             macros: testMacros
@@ -165,16 +165,18 @@ final class WithSpecializedGenericTests: XCTestCase {
                     let id: T
                     let a: S
                 }
-                    class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                                let id: T
-                                let a: S
-                        public typealias T = Int
-                    }
-                    class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
-                                let id: T
-                                let a: S
-                        public typealias T = String
-                    }
+
+                class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+                    let id: T
+                    let a: S
+                    public typealias T = Int
+                }
+
+                class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
+                    let id: T
+                    let a: S
+                    public typealias T = String
+                }
             }
             """,
             macros: testMacros
@@ -215,26 +217,26 @@ final class WithSpecializedGenericTests: XCTestCase {
                         return Hello<T, S>()
                     }
                 }
-                    class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                                let id: T
-                                let childre: Hola<S>
 
-                                func greeting(with word: Hola<S>) -> Hola<S> {
-                                        let b: Hola<S> = Hola()
-                                        return Hola<S>()
-                                }
-                        public typealias T = Int
+                class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+                    let id: T
+                    let childre: Hola<S>
+                    func greeting(with word: Hola<S>) -> Hola<S> {
+                        let b: Hola<S> = Hola()
+                        return Hola<S>()
                     }
-                    class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
-                                let id: T
-                                let childre: Hej<S>
+                    public typealias T = Int
+                }
 
-                                func greeting(with word: Hej<S>) -> Hej<S> {
-                                        let b: Hej<S> = Hej()
-                                        return Hej<S>()
-                                }
-                        public typealias T = String
+                class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
+                    let id: T
+                    let childre: Hej<S>
+                    func greeting(with word: Hej<S>) -> Hej<S> {
+                        let b: Hej<S> = Hej()
+                        return Hej<S>()
                     }
+                    public typealias T = String
+                }
             }
             """,
             macros: testMacros
@@ -265,9 +267,9 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 struct IntNode    {
-                                let children: [IntNode  ]
-                        public typealias T = Int
-                    }
+                    let children: [IntNode  ]
+                    public typealias T = Int
+                }
             }
             """,
             macros: testMacros
@@ -278,47 +280,6 @@ final class WithSpecializedGenericTests: XCTestCase {
     }
 
     
-    func testDSLResolve() throws {
-        
-
-        
-#if canImport(WithSpecializedGenericMacros)
-assertMacroExpansion(
-    """
-    enum Scoped {
-        @WithSpecializedGenerics(\"""
-        Nihao {
-            T = Int
-        }
-        Hej {
-            V = String
-            T = Double
-        }
-        \""")
-        struct Node<T> where T: Hashable {
-            let children: [Node<T>]
-        }
-    }
-    """,
-    expandedSource: """
-    enum Scoped {
-        struct Node<T> where T: Hashable {
-            let children: [Node<T>]
-        }
-
-        struct IntNode    {
-                        let children: [IntNode  ]
-                public typealias T = Int
-            }
-    }
-    """,
-    macros: testMacros
-)
-#else
-throw XCTSkip("macros are only supported when running tests for the host platform")
-#endif
-        
-    }
     
 
 }

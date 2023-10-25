@@ -342,7 +342,7 @@ public struct WithSpecializedGenericsMacro: PeerMacro {
 struct WithSpecializedGenericPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         WithSpecializedGenericMacro.self,
-        WithSpecializedGenericsMacro.self
+//        WithSpecializedGenericsMacro.self
     ]
 }
 
