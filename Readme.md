@@ -4,7 +4,7 @@
 
 An experimental peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
 
-This macro simply put a specialized type alongside your generic definition, by aliasing the generic type to a concrete type as a member of the struct/class, and replacing all recursive references to the original type with the new specialized type.
+This macro simply put a specialized type alongside your generic definition, by removing the generic parameter, adding a typealias for the removed paramter, and replacing all recursive references to the original type with the new specialized type.
 
 For generic functions try `@_specialize` attribute: https://forums.swift.org/t/specialize-attribute/1853
 
