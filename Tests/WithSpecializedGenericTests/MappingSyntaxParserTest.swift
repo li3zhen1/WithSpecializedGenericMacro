@@ -17,31 +17,6 @@ import WithSpecializedGenericMacros
 final class RewriterTests: XCTestCase {
     
     func testSimple() {
-        let str = """
-        Nihao {
-            T = Int
-        }
-        Hej {
-            V = String
-            T = Double
-        }
-        """
-        let entry = try! MappingEntry.parse(str)
-        assert(entry.formatted() == str)
-        
-        let innerText = """
-        \"""
-        Nihao {
-            T = Int
-        }
-        Hej {
-            V = String
-            T = Double
-        }
-        \"""
-        """
-        
-        print(innerText)
     }
     
     

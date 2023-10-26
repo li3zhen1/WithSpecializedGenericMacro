@@ -8,44 +8,14 @@ import WithSpecializedGenericMacros
 
 let testMacros: [String: Macro.Type] = [
 //    "stringify": StringifyMacro.self,
-    "WithSpecializedGeneric": WithSpecializedGenericMacro.self,
+//    "WithSpecializedGeneric": WithSpecializedGenericMacro.self,
     "WithSpecializedGenerics": WithSpecializedGenericsMacro.self,
 ]
 #endif
 
 final class WithSpecializedGenericTests: XCTestCase {
     
-    
-    func testSimpleGenericStruct() throws {
-        #if canImport(WithSpecializedGenericMacros)
-        assertMacroExpansion(
-            """
-            enum Scoped {
-                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
-                struct Hello<T> {
-                    let a: T
-                }
-            }
-            """,
-            expandedSource: """
-            enum Scoped {
-                struct Hello<T> {
-                    let a: T
-                }
-
-                struct Hola   {
-                    let a: T
-                    public typealias T = Int
-                }
-            }
-            """,
-            macros: testMacros
-        )
-        #else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
-        #endif
-    }
-    
+ 
     
     
     func testGenericStructWithSameTypeRequirements() throws {
@@ -53,21 +23,21 @@ final class WithSpecializedGenericTests: XCTestCase {
         assertMacroExpansion(
             """
             enum Scoped {
-                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
-                struct Hello<T> where T == Int {
+                @WithSpecializedGenerics("typealias Hola = Hello<Int>")
+                struct Hello<T> where T: NumericalBlabla {
                     let a: T
                 }
             }
             """,
             expandedSource: """
             enum Scoped {
-                struct Hello<T> where T == Int {
+                struct Hello<T> where T: NumericalBlabla {
                     let a: T
                 }
 
                 struct Hola    {
-                    let a: T
-                    public typealias T = Int
+                        let a: T
+                        public typealias T = Int
                 }
             }
             """,
@@ -84,21 +54,21 @@ final class WithSpecializedGenericTests: XCTestCase {
         assertMacroExpansion(
             """
             enum Scoped {
-                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
-                struct Hello<T> where T: Hashable {
+                @WithSpecializedGenerics("typealias Hola=Hello<Int>")
+                struct Hello<T> where T: NumericalBlabla {
                     let a: T
                 }
             }
             """,
             expandedSource: """
             enum Scoped {
-                struct Hello<T> where T: Hashable {
+                struct Hello<T> where T: NumericalBlabla {
                     let a: T
                 }
 
                 struct Hola    {
-                    let a: T
-                    public typealias T = Int
+                        let a: T
+                        public typealias T = Int
                 }
             }
             """,
@@ -117,7 +87,7 @@ final class WithSpecializedGenericTests: XCTestCase {
         assertMacroExpansion(
             """
             enum Scoped {
-                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
+                @WithSpecializedGenerics("typealias Hola<Double> = Hello<Double, S>")
                 class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
                     let id: T
                     let a: S
@@ -131,10 +101,10 @@ final class WithSpecializedGenericTests: XCTestCase {
                     let a: S
                 }
 
-                class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                    let id: T
-                    let a: S
-                    public typealias T = Int
+                class Hola<T>: Identifiable where T: Hashable, S.ID == T {
+                        let id: T
+                        let a: S
+                        public typealias S = S
                 }
             }
             """,
@@ -151,8 +121,7 @@ final class WithSpecializedGenericTests: XCTestCase {
         assertMacroExpansion(
             """
             enum Scoped {
-                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
-                @WithSpecializedGeneric(namedAs: "Hej", specializing: "T", to: String)
+                @WithSpecializedGenerics("typealias Hola<S> = Hello<Int, S>;typealias Hej<S> = Hello<String, S> where S: Codable")
                 class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
                     let id: T
                     let a: S
@@ -167,15 +136,15 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                    let id: T
-                    let a: S
-                    public typealias T = Int
+                        let id: T
+                        let a: S
+                        public typealias T = Int
                 }
 
-                class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
-                    let id: T
-                    let a: S
-                    public typealias T = String
+                class Hej<S>: Identifiable where S.ID == String, S: Identifiable , S: Codable {
+                        let id: T
+                        let a: S
+                        public typealias T = String
                 }
             }
             """,
@@ -192,51 +161,37 @@ final class WithSpecializedGenericTests: XCTestCase {
         #if canImport(WithSpecializedGenericMacros)
         assertMacroExpansion(
             """
+            @WithSpecializedGenerics("public final typealias Hola<S> = Hello<Int, S>")
             enum Scoped {
-                @WithSpecializedGeneric(namedAs: "Hola", specializing: "T", to: Int)
-                @WithSpecializedGeneric(namedAs: "Hej", specializing: "T", to: String)
-                class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                
+                @WithSpecializedGenerics("public typealias Hola<S> = Hello<Int, S>")
+                struct Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
                     let id: T
-                    let childre: Hello<T, S>
-            
-                    func greeting(with word: Hello<T, S>) -> Hello<T, S> {
-                        let b: Hello<T, S> = Hello()
-                        return Hello<T, S>()
+                    init(id: T) {
+                        self.id = id
                     }
                 }
+                
             }
             """,
             expandedSource: """
             enum Scoped {
-                class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                
+                struct Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
                     let id: T
-                    let childre: Hello<T, S>
-
-                    func greeting(with word: Hello<T, S>) -> Hello<T, S> {
-                        let b: Hello<T, S> = Hello()
-                        return Hello<T, S>()
+                    init(id: T) {
+                        self.id = id
                     }
                 }
 
-                class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                    let id: T
-                    let childre: Hola<S>
-                    func greeting(with word: Hola<S>) -> Hola<S> {
-                        let b: Hola<S> = Hola()
-                        return Hola<S>()
-                    }
-                    public typealias T = Int
+                struct Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+                        let id: T
+                        init(id: T) {
+                                self.id = id
+                        }
+                        public typealias T = Int
                 }
-
-                class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
-                    let id: T
-                    let childre: Hej<S>
-                    func greeting(with word: Hej<S>) -> Hej<S> {
-                        let b: Hej<S> = Hej()
-                        return Hej<S>()
-                    }
-                    public typealias T = String
-                }
+                
             }
             """,
             macros: testMacros
@@ -254,22 +209,61 @@ final class WithSpecializedGenericTests: XCTestCase {
         assertMacroExpansion(
             """
             enum Scoped {
-                @WithSpecializedGeneric(namedAs: "IntNode", specializing: "T", to: Int)
-                struct Node<T> where T: Hashable {
-                    let children: [Node<T>]
+                
+                
+                @WithSpecializedGenerics("public typealias Hola<S> = Hello<Int, S>")
+                final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                    let id: T
+                    let children: Hello<T, S>
+                    
+
+                    func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+                        let _: Hello<T, S> = Hello(id: word.id, children: word.children)
+                        return Hello<T, S>(id: word.id, children: word.children)
+                    }
+                   
+                    init(id: T, children: Hello<T,S>) {
+                        self.id = id
+                        self.children = children.children
+                    }
                 }
+                
             }
             """,
             expandedSource: """
             enum Scoped {
-                struct Node<T> where T: Hashable {
-                    let children: [Node<T>]
+                
+                
+                final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+                    let id: T
+                    let children: Hello<T, S>
+                    
+
+                    func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+                        let _: Hello<T, S> = Hello(id: word.id, children: word.children)
+                        return Hello<T, S>(id: word.id, children: word.children)
+                    }
+                   
+                    init(id: T, children: Hello<T,S>) {
+                        self.id = id
+                        self.children = children.children
+                    }
                 }
 
-                struct IntNode    {
-                    let children: [IntNode  ]
-                    public typealias T = Int
+                final class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+                        let id: T
+                        let children: Hola<S>
+                        func greeting(with word: Hola<S>) -> Hola<S> {
+                                let _: Hola<S> = Hola(id: word.id, children: word.children)
+                                return Hola<S>(id: word.id, children: word.children)
+                        }
+                        init(id: T, children: Hola<S>) {
+                                self.id = id
+                                self.children = children.children
+                        }
+                        public typealias T = Int
                 }
+                
             }
             """,
             macros: testMacros
