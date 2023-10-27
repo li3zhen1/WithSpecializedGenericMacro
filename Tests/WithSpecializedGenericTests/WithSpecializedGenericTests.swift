@@ -274,6 +274,51 @@ final class WithSpecializedGenericTests: XCTestCase {
     }
 
     
-    
+//    func testSimulation() {
+//#if canImport(WithSpecializedGenericMacros)
+//assertMacroExpansion(
+//    simulationCode,
+//    expandedSource: """
+//    enum Scoped {
+//        
+//        
+//        final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+//            let id: T =         1
+//            let children: Hello<T, S>
+//            
+//
+//            func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+//                let _: Hello<T, S> = Hello(id: word.id, children: word.children)
+//                return Hello<T, S>(id: word.id, children: word.children)
+//            }
+//           
+//            init(id: T, children: Hello<T,S>) {
+//                self.id = id
+//                self.children = children.children
+//            }
+//        }
+//
+//        final class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+//                let id: T = 2
+//                let children: Hola<S>
+//                func greeting(with word: Hola<S>) -> Hola<S> {
+//                        let _: Hola<S> = Hola(id: word.id, children: word.children)
+//                        return Hola<S>(id: word.id, children: word.children)
+//                }
+//                init(id: T, children: Hola<S>) {
+//                        self.id = id
+//                        self.children = children.children
+//                }
+//                public typealias T = Int
+//        }
+//        
+//    }
+//    """,
+//    macros: testMacros
+//)
+//#else
+//throw XCTSkip("macros are only supported when running tests for the host platform")
+//#endif
+//    }
 
 }

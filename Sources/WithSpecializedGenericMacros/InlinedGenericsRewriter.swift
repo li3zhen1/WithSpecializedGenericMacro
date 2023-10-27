@@ -184,9 +184,11 @@ final class InlinedGenericsRewriter: SyntaxRewriter {
 private extension InlinedGenericsRewriter {
     
     func transformGenericArgumentClause(clause: inout GenericArgumentClauseSyntax) {
-        precondition(clause.arguments.count == parameter.rightParameterList.count)
+        if clause.arguments.count != parameter.rightParameterList.count { return }
         
         var newArgs = [GenericArgumentSyntax]()
+        
+        // TODO: Checkname
         
         var i = 0
         var j = 0
@@ -220,15 +222,18 @@ private extension InlinedGenericsRewriter {
     
     
     func transformGenericParameterClause(clause: inout GenericParameterClauseSyntax) {
-        precondition(clause.parameters.count == parameter.rightParameterList.count)
+        if clause.parameters.count != parameter.rightParameterList.count { return }
         
         
         var newArgs = [GenericParameterSyntax]()
         
+        
+        // TODO: Checkname
+        
         var i = 0
         var j = 0
         for arg in clause.parameters {
-
+            
             if  j < replacements.count  && replacements[j].index == i {
                 // jump
                 j += 1
