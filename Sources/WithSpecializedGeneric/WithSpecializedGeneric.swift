@@ -14,3 +14,7 @@
 @attached(peer, names: arbitrary)
 public macro WithSpecializedGenerics(_ aliases: String) = #externalMacro(module: "WithSpecializedGenericMacros", type: "WithSpecializedGenericsMacro")
 
+
+@freestanding(expression)
+public macro ReplaceWhenSpecializing<T>(_ original: T, _ replacing: String) -> T = #externalMacro(module: "WithSpecializedGenericMacros", type: "ReplaceWhenSpecializingMacro")
+

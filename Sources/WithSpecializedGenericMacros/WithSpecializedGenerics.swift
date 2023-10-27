@@ -10,9 +10,20 @@ public enum WithSpecializedGenericsMacroError: Error {
 }
 
 
+public struct ReplaceWhenSpecializingMacro: ExpressionMacro {
+    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+        return node.argumentList.first?.expression ?? ""
+    }
+    
+    
+}
+
+
 public struct WithSpecializedGenericsMacro: PeerMacro {
     
     public static let macroName: String = "WithSpecializedGenerics"
+    
+    public static let replaceMacroName: String = "ReplaceWhenSpecializing"
     
     private static func expansion(
         of arguments: InlinedTypealiasParameter,
@@ -20,6 +31,8 @@ public struct WithSpecializedGenericsMacro: PeerMacro {
         in context: some SwiftSyntaxMacros.MacroExpansionContext
     ) throws -> SwiftSyntax.DeclSyntax? {
         var structOrClassDecl = structOrClassDecl
+        
+        
         guard let genericParameterClause = structOrClassDecl.genericParameterClause else { return nil }
         let originalGenericParamNames = genericParameterClause.parameters.map { $0.name.text }
         
@@ -96,5 +109,6 @@ public struct WithSpecializedGenericsMacro: PeerMacro {
 struct WithSpecializedGenericMacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         WithSpecializedGenericsMacro.self,
+        ReplaceWhenSpecializingMacro.self,
     ]
 }

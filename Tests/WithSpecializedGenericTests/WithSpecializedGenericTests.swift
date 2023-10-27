@@ -10,6 +10,7 @@ let testMacros: [String: Macro.Type] = [
 //    "stringify": StringifyMacro.self,
 //    "WithSpecializedGeneric": WithSpecializedGenericMacro.self,
     "WithSpecializedGenerics": WithSpecializedGenericsMacro.self,
+    "ReplaceWhenSpecializing": ReplaceWhenSpecializingMacro.self,
 ]
 #endif
 
@@ -161,7 +162,6 @@ final class WithSpecializedGenericTests: XCTestCase {
         #if canImport(WithSpecializedGenericMacros)
         assertMacroExpansion(
             """
-            @WithSpecializedGenerics("public final typealias Hola<S> = Hello<Int, S>")
             enum Scoped {
                 
                 @WithSpecializedGenerics("public typealias Hola<S> = Hello<Int, S>")
@@ -213,7 +213,7 @@ final class WithSpecializedGenericTests: XCTestCase {
                 
                 @WithSpecializedGenerics("public typealias Hola<S> = Hello<Int, S>")
                 final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
-                    let id: T
+                    let id: T = #ReplaceWhenSpecializing(1, "2")
                     let children: Hello<T, S>
                     
 
@@ -235,7 +235,7 @@ final class WithSpecializedGenericTests: XCTestCase {
                 
                 
                 final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
-                    let id: T
+                    let id: T =         1
                     let children: Hello<T, S>
                     
 
@@ -251,7 +251,7 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 final class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                        let id: T
+                        let id: T = 2
                         let children: Hola<S>
                         func greeting(with word: Hola<S>) -> Hola<S> {
                                 let _: Hola<S> = Hola(id: word.id, children: word.children)

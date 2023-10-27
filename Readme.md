@@ -8,6 +8,7 @@ This macro accepts a list of `typealias` syntaxes, with a tolerance of `final` k
 
 For the usecase in [a quadtree data structure (line 48)](https://github.com/li3zhen1/Grape/blob/WithSpecializedGeneric/Sources/NDTree/KDTree.swift), this macro can speed up the construction time of data structure by ~15%, compared to directly using a typealias syntax. (Usecases like traversing tree nodes can probably benefit way more from this)
 
+This package also provides a `#ReplaceWhenSpecialing(#OldExpr#, "NewExpr")` macro, which replaces all occurences of `#OldExpr#` with `NewExpr` when specializing. This is useful in many situations. `#OldExpr#` must be a valid expression, and `NewExpr` can be any string.
 
 > [!NOTE]
 > For generic functions try [`@_specialize` attribute](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_specialize).
@@ -87,6 +88,9 @@ enum Namespace {
 ```
 
 The `enum Namespace` is required since peer macros cannot introduce new name in global scope.
+
+
+
 
 > [!IMPORTANT]
 > Currently this macro does not take special care for `AnotherNamespace.StructOrClassWithSameName`, and hence it might introduce undesired code when encountering this.

@@ -160,6 +160,20 @@ final class InlinedGenericsRewriter: SyntaxRewriter {
     override func visit(_ node: MemberBlockItemListSyntax) -> MemberBlockItemListSyntax {
         return super.visit(node).trimmed
     }
+    
+    
+    
+    override func visit(_ node: MacroExpansionExprSyntax) -> ExprSyntax {
+        if node.macroName.text == WithSpecializedGenericsMacro.replaceMacroName {
+            guard node.arguments.count > 1 else { return "" }
+            guard let replacingExpr = node.arguments[1].expression.as(StringLiteralExprSyntax.self)?.representedLiteralValue else { return "" }
+            return super.visit(ExprSyntax(stringLiteral: replacingExpr)).trimmed
+        }
+        else {
+            return super.visit(node.trimmed).trimmed
+        }
+        
+    }
 }
 
 
