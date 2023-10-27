@@ -1,7 +1,7 @@
 # WithSpecializedGenericMacro
 
 <img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow">
-
+ 
 An experimental peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
 
 This macro accepts a list of `typealias` syntaxes, with a tolerance of `final` keyword(which is not allowed in real typealiases). It simply put a specialized type alongside your generic definition, by removing the generic parameter, adding a typealias for the removed parameter. It also replaces all recursive references to the original type with the new specialized type.
