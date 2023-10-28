@@ -2,16 +2,19 @@
 
 <img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow">
  
-An experimental peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
+A peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
 
-This macro accepts a list of `typealias` syntaxes, with a tolerance of `final` keyword(which is not allowed in real typealiases). It simply put a specialized type alongside your generic definition, by removing the generic parameter, adding a typealias for the removed parameter. It also replaces all recursive references to the original type with the new specialized type.
+The macro `@WithSpecializedGenerics("typealias ...")` accepts a list of `typealias` syntaxes, with a tolerance of the `final` modifier. The string inside are **also parsed with the `SwiftSyntax` package** so it works as long as you are providing a list of parsable typealiases. The macro does 6 things for you: 
 
-For the usecase in [a quadtree data structure (line 48)](https://github.com/li3zhen1/Grape/blob/WithSpecializedGeneric/Sources/NDTree/KDTree.swift), this macro can speed up the construction time of data structure by ~15%, compared to directly using a typealias syntax. (Usecases like traversing tree nodes can probably benefit way more from this)
+- Put a specialized type alongside your generic definition.
+- Add a typealias for each specialized parameter. 
+- Remove the specialized generic parameters.
+- Remove redundant generic requirements in original `where` clause.
+- Copy the generic requirements from your `"typealias ... where ..."` to the original `where` clause.
+- Replace all recursive references to the original type with the newly specialized type.
 
-This package also provides a `#ReplaceWhenSpecialing(#OldExpr#, "NewExpr")` macro, which replaces all occurences of `#OldExpr#` with `NewExpr` when specializing. This is useful in many situations. `#OldExpr#` must be a valid expression, and `NewExpr` can be any string.
+This package also provides a `#ReplaceWhenSpecialing(#OldExpr#, "NewExpr")` macro, which replaces all occurences of `#OldExpr#` with `NewExpr` when specializing.`#OldExpr#` must be a valid expression, and `NewExpr` can be any string. This comes handy when you have some specific implementations. 
 
-> [!NOTE]
-> For generic functions try [`@_specialize` attribute](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_specialize).
 
 
 
@@ -102,7 +105,13 @@ The `enum Namespace` is required since peer macros cannot introduce new name in 
 
 
 
-> [!IMPORTANT]
+For the usecase in [a quadtree data structure (line 48)](https://github.com/li3zhen1/Grape/blob/WithSpecializedGeneric/Sources/NDTree/KDTree.swift), this macro can speed up the construction time of data structure by ~16%, compared to directly using a typealias syntax. (Usecases like traversing tree nodes can benefit way more from this)
+
+> [!NOTE]
+> For generic functions try [`@_specialize` attribute](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_specialize).
+
+
+> [!NOTE]
 > Currently this macro does not take special care for `AnotherNamespace.StructOrClassWithSameName`, and hence it might introduce undesired code when encountering this.
 
 
