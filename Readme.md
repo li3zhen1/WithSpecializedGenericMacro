@@ -2,9 +2,9 @@
 
 <img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow">
  
-A peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch.
+A peer macro expanding generic **struct or class** to a specialized type, so as to avoid dynamic dispatch. To some degree, this macro makes generics in Swift work like C++ templates.
 
-The macro `@WithSpecializedGenerics("typealias ...")` accepts a list of `typealias` syntaxes, with a tolerance of the `final` modifier. The string inside are **also parsed with the `SwiftSyntax` package** so it works as long as you are providing a list of parsable typealiases. The macro does 6 things for you: 
+The macro `@WithSpecializedGenerics("typealias ...")` accepts a list of `typealias` syntaxes, with a tolerance of the `final` modifier. The string inside is **also parsed with the `SwiftSyntax` package**. This means it works as long as you are providing a list of parsable typealiases. The macro does 6 things for you: 
 
 - Put a specialized type alongside your generic definition.
 - Add a typealias for each specialized parameter. 
