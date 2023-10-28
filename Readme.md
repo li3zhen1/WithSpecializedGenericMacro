@@ -27,7 +27,7 @@ enum Namespace {
     let id: T
     let children: Hello<T, S>
 
-    let name = #ReplaceWhenSpecializing("Hello!", "\"Hola!\"")
+    let name = #ReplaceWhenSpecializing("Hello!", "\"¡Hola!\"")
 
     func greeting(with word: Hello<T, S>) -> Hello<T, S> {
       let _: Hello<T, S> = Hello(id: word.id, children: word.children)
@@ -68,7 +68,7 @@ enum Namespace {
     let id: T
     let children: Hola<S>
 
-    let name = "Hola!"
+    let name = "¡Hola!"
 
     func greeting(with word: Hola<S>) -> Hola<S> {
       let _: Hola<S> = Hola(id: word.id, children: word.children)
@@ -85,7 +85,7 @@ enum Namespace {
     let id: T
     let children: Hej<S>
 
-    let name = "Hola!"
+    let name = "¡Hola!"
 
     func greeting(with word: Hej<S>) -> Hej<S> {
       let _: Hej<S> = Hej(id: word.id, children: word.children)
