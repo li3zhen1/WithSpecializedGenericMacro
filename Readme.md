@@ -107,4 +107,4 @@ The `enum Namespace` is required since peer macros cannot introduce new name in 
 
 
 > [!NOTE]
-> If you’re adding an extension to the original genric type on the same file, and encountered error `Circular reference`, moving the extension to another file can solve this. This is probably similar to the issue discussed here: https://github.com/apple/swift/issues/66450 .
+> If you’re adding an extension to the original generic type in the same file, and encountered error `Circular reference`, moving the extension to another file can solve this. This is probably similar to the issue discussed here: https://github.com/apple/swift/issues/66450 .
