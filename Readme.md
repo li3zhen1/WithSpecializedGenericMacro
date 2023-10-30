@@ -1,22 +1,8 @@
 # WithSpecializedGenericMacro
 
-<img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow">
+<img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow"> <a href="https://swiftpackageindex.com/li3zhen1/WithSpecializedGeneric"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fli3zhen1%2FWithSpecializedGeneric%2Fbadge%3Ftype%3Dswift-versions" alt="swift package index"></a> <a href="https://swiftpackageindex.com/li3zhen1/WithSpecializedGeneric"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fli3zhen1%2FWithSpecializedGeneric%2Fbadge%3Ftype%3Dplatforms" alt="swift package index"></a>
  
 A peer macro expanding generic **struct or class** to a specialized type. This helps Swift to better specialize your class/struct when your code introduces generics, protocols and type erasure. To some degree, this macro makes generics in Swift work more like C++ templates.
-
-The macro `@WithSpecializedGenerics("typealias ...")` accepts a list of `typealias` syntaxes, with a tolerance of the `final` modifier. The string inside is **also parsed with the `SwiftSyntax` package**. This means it works as long as you are providing a list of parsable typealiases. The macro does 6 things for you: 
-
-- Put a specialized type alongside your generic definition.
-- Add a typealias for each specialized parameter. 
-- Remove the specialized generic parameters.
-- Remove redundant generic requirements in original `where` clause.
-- Copy the generic requirements from your `"typealias ... where ..."` to the original `where` clause.
-- Replace all recursive references to the original type with the newly specialized type.
-
-This package also provides a `#ReplaceWhenSpecialing(#OldExpr#, "NewExpr")` macro, which replaces all occurences of `#OldExpr#` with `NewExpr` when specializing.`#OldExpr#` must be a valid expression, and `NewExpr` can be any string. This comes handy when you have some specific implementations. 
-
-
-
 
 ## Example
 
@@ -102,6 +88,24 @@ enum Namespace {
 
 The `enum Namespace` is required since peer macros cannot introduce new name in global scope.
 
+
+## Details about this macro
+
+
+The macro `@WithSpecializedGenerics("typealias ...")` accepts a list of `typealias` syntaxes, with a tolerance of the `final` modifier. The string inside is **also parsed with the `SwiftSyntax` package**. This means it works as long as you are providing a list of parsable typealiases. The macro does 6 things for you: 
+
+- Put a specialized type alongside your generic definition.
+- Add a typealias for each specialized parameter. 
+- Remove the specialized generic parameters.
+- Remove redundant generic requirements in original `where` clause.
+- Copy the generic requirements from your `"typealias ... where ..."` to the original `where` clause.
+- Replace all recursive references to the original type with the newly specialized type.
+
+This package also provides a `#ReplaceWhenSpecialing(#OldExpr#, "NewExpr")` macro, which replaces all occurences of `#OldExpr#` with `NewExpr` when specializing.`#OldExpr#` must be a valid expression, and `NewExpr` can be any string. This comes handy when you have some specific implementations. 
+
+
+
+## Misc
 
 
 
