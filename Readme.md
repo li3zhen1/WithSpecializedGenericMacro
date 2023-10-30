@@ -107,9 +107,9 @@ This package also provides a `#ReplaceWhenSpecialing(#OldExpr#, "NewExpr")` macr
 
 ## Misc
 
-
-
 For the usecase in [a quadtree data structure (line 48)](https://github.com/li3zhen1/Grape/blob/WithSpecializedGeneric/Sources/NDTree/KDTree.swift), this macro can speed up the construction time of data structure by ~16%, compared to directly using a typealias syntax. (Usecases like traversing tree nodes can benefit way more from this)
+
+I have also observed significant performance gain with this approach even when the `-cross-module-optimization` flags are turned on. (from 0.17s to 0.04s in the testcases [here](https://github.com/li3zhen1/Grape/blob/WithSpecializedGeneric/Tests/ForceSimulationTests/MiserableGraphTest.swift))
 
 > [!NOTE]
 > For generic functions try [`@_specialize` attribute](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_specialize).
