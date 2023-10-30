@@ -2,7 +2,7 @@
 
 <img src="https://github.com/li3zhen1/SpecializedGenericMacros/actions/workflows/swift.yml/badge.svg" alt="swift workflow"> <a href="https://swiftpackageindex.com/li3zhen1/WithSpecializedGeneric"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fli3zhen1%2FWithSpecializedGeneric%2Fbadge%3Ftype%3Dswift-versions" alt="swift package index"></a> <a href="https://swiftpackageindex.com/li3zhen1/WithSpecializedGeneric"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fli3zhen1%2FWithSpecializedGeneric%2Fbadge%3Ftype%3Dplatforms" alt="swift package index"></a>
  
-A peer macro expanding generic **struct or class** to a specialized type. This helps Swift to better specialize your class/struct when your code introduces generics, protocols and type erasure. To some degree, this macro makes generics in Swift work more like C++ templates.
+A peer macro expanding generic **struct or class** to a specialized type. This helps Swift to better specialize/optimize your code when you are [exposing public APIs with heavy generics](https://forums.swift.org/t/brave-new-world-best-practices-for-cross-module-optimization/66869). To some degree, this macro makes generics in Swift work more like C++ templates.
 
 ## Example
 
