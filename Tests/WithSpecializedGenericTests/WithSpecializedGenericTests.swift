@@ -206,14 +206,13 @@ final class WithSpecializedGenericTests: XCTestCase {
     
     func testNestedClass() throws {
         #if canImport(WithSpecializedGenericMacros)
-        assertMacroExpansion(
-            """
+        let original = """
             enum Scoped {
                 
                 
                 @WithSpecializedGenerics("public typealias Hola<S> = Hello<Int, S>")
                 final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
-                    let id: T = #ReplaceWhenSpecializing(1, "2")
+                    let id: T = #ReplaceWhenSpecializing("1", "\\"2\\"")
                     let children: Hello<T, S>
                     
 
@@ -229,13 +228,16 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
                 
             }
-            """,
+            """
+//        print(original)
+        assertMacroExpansion(
+            original,
             expandedSource: """
             enum Scoped {
                 
                 
                 final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
-                    let id: T =         1
+                    let id: T =         "1"
                     let children: Hello<T, S>
                     
 
@@ -251,7 +253,7 @@ final class WithSpecializedGenericTests: XCTestCase {
                 }
 
                 final class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
-                        let id: T = 2
+                        let id: T = "2"
                         let children: Hola<S>
                         func greeting(with word: Hola<S>) -> Hola<S> {
                                 let _: Hola<S> = Hola(id: word.id, children: word.children)
@@ -273,6 +275,85 @@ final class WithSpecializedGenericTests: XCTestCase {
         #endif
     }
 
+    func testMultipleReplacement() {
+        
+        #if canImport(WithSpecializedGenericMacros)
+        assertMacroExpansion("""
+        enum Namespace {
+          @WithSpecializedGenerics("public typealias Hola<S> = Hello<Int, S>;public typealias Hej<S> = Hello<String, S>")
+          final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+            let id: T
+            let children: Hello<T, S>
+
+            let name = #ReplaceWhenSpecializing("Hello!", lookupOn: [
+                "Hola" : "\\"¡Hola!\\"",
+                "Hej"  : "\\"Hej!!!\\""
+            ], fallback: "Unknown")
+
+            func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+              let _: Hello<T, S> = Hello(id: word.id, children: word.children)
+              return Hello<T, S>(id: word.id, children: word.children)
+            }
+
+            init(id: T, children: Hello<T, S>) {
+              self.id = id
+              self.children = children.children
+            }
+          }
+        }
+        """
+        , expandedSource: """
+        enum Namespace {
+          final class Hello<T, S>: Identifiable where T: Hashable, S.ID == T, S: Identifiable {
+            let id: T
+            let children: Hello<T, S>
+
+            let name =     "Hello!"
+
+            func greeting(with word: Hello<T, S>) -> Hello<T, S> {
+              let _: Hello<T, S> = Hello(id: word.id, children: word.children)
+              return Hello<T, S>(id: word.id, children: word.children)
+            }
+
+            init(id: T, children: Hello<T, S>) {
+              self.id = id
+              self.children = children.children
+            }
+          }
+
+          final class Hola<S>: Identifiable where S.ID == Int, S: Identifiable {
+                  let id: T
+                  let children: Hola<S>
+                  let name = "¡Hola!"
+                  func greeting(with word: Hola<S>) -> Hola<S> {
+                          let _: Hola<S> = Hola(id: word.id, children: word.children)
+                          return Hola<S>(id: word.id, children: word.children)
+                  }
+                  init(id: T, children: Hola<S>) {
+                          self.id = id
+                          self.children = children.children
+                  }
+                  public typealias T = Int
+          }
+
+          final class Hej<S>: Identifiable where S.ID == String, S: Identifiable {
+                  let id: T
+                  let children: Hej<S>
+                  let name = "Hej!!!"
+                  func greeting(with word: Hej<S>) -> Hej<S> {
+                          let _: Hej<S> = Hej(id: word.id, children: word.children)
+                          return Hej<S>(id: word.id, children: word.children)
+                  }
+                  init(id: T, children: Hej<S>) {
+                          self.id = id
+                          self.children = children.children
+                  }
+                  public typealias T = String
+          }
+        }
+        """, macros: testMacros)
+        #endif
+    }
     
 //    func testSimulation() {
 //#if canImport(WithSpecializedGenericMacros)

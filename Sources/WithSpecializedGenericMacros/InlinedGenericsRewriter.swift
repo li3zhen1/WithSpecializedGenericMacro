@@ -165,9 +165,44 @@ final class InlinedGenericsRewriter: SyntaxRewriter {
     
     override func visit(_ node: MacroExpansionExprSyntax) -> ExprSyntax {
         if node.macroName.text == WithSpecializedGenericsMacro.replaceMacroName {
-            guard node.arguments.count > 1 else { return "" }
-            guard let replacingExpr = node.arguments[1].expression.as(StringLiteralExprSyntax.self)?.representedLiteralValue else { return "" }
-            return super.visit(ExprSyntax(stringLiteral: replacingExpr)).trimmed
+            guard node.arguments.count > 1 else { return "# Unexpected parameter #" }
+            
+            if let replacingExprLabel = node.arguments[1].label {
+                if replacingExprLabel.text != "lookupOn" {
+                    return "# Unexpected parameter #"
+                }
+                else {
+                    guard let lookupContent = node.arguments[1].expression.as(DictionaryExprSyntax.self)?.content else { return "# Unexpected parameter #" }
+                    guard let fallback = node.arguments[2].expression.as(StringLiteralExprSyntax.self)?.representedLiteralValue else { return "# Unexpected parameter #" }
+                    
+                    
+                    var replacingExpr: String
+                    
+                    switch lookupContent {
+                    case .colon(_):
+                        replacingExpr = fallback
+                    case .elements(let dictionaryElementListSyntax):
+                        replacingExpr = fallback
+                        for item in dictionaryElementListSyntax {
+                            if let key = item.key.as(StringLiteralExprSyntax.self)?.representedLiteralValue,
+                               let value = item.value.as(StringLiteralExprSyntax.self)?.representedLiteralValue {
+                                if key == parameter.leftName {
+                                    replacingExpr = value
+                                }
+                            }
+                        }
+                        
+                    }
+                    
+                    return super.visit(ExprSyntax(stringLiteral: replacingExpr)).trimmed
+                }
+            }
+            else {
+                guard let replacingExpr = node.arguments[1].expression.as(StringLiteralExprSyntax.self)?.representedLiteralValue else { return "# Unexpected parameter #" }
+                return super.visit(ExprSyntax(stringLiteral: replacingExpr)).trimmed
+            }
+            
+           
         }
         else {
             return super.visit(node.trimmed).trimmed
