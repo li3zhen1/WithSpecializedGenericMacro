@@ -22,14 +22,14 @@ do {
 
                     htmlString = htmlString.replacingOccurrences(
                         of: """
-                            <link rel="icon" href="/SpecializedGenericMacros/favicon.ico">
+                            <link rel="icon" href="/WithSpecializedGeneric/favicon.ico">
                             """,
                         with: """
-                            <link rel="icon" href="/SpecializedGenericMacros/favicon.png">
+                            <link rel="icon" href="/WithSpecializedGeneric/favicon.png">
                             """)
                     htmlString = htmlString.replacingOccurrences(
                         of: """
-                            <link rel="mask-icon" href="/SpecializedGenericMacros/favicon.svg" color="#333333">
+                            <link rel="mask-icon" href="/WithSpecializedGeneric/favicon.svg" color="#333333">
                             """,
                         with: """
                             <link rel="preconnect" href="https://fonts.googleapis.com">
